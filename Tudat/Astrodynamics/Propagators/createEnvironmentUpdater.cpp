@@ -219,8 +219,11 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
                                 thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
                     {
-                        singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
-                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                        if( translationalAccelerationModels.count( thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                        thirdBodyAcceleration->getCentralBodyName( ) );
+                        }
                     }
                     else if( thirdBodyAcceleration == NULL )
                     {
@@ -250,6 +253,16 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].
                         push_back( accelerationModelIterator->first );
                     break;
+                case mutual_spherical_harmonic_gravity:
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    break;
                 case third_body_spherical_harmonic_gravity:
                 {
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
@@ -277,7 +290,43 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     }
                     break;
                 }
+                case third_body_mutual_spherical_harmonic_gravity:
+                {
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                acceleratedBodyIterator->first );
+
+                    boost::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
+                            thirdBodyAcceleration = boost::dynamic_pointer_cast<
+                            gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
+                                accelerationModelIterator->second.at( i ) );;
+                    if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
+                                thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
+                    {
+                        singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                        singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                    }
+                    else if( thirdBodyAcceleration == NULL )
+                    {
+                        throw std::runtime_error(
+                                    std::string( "Error, incompatible input (ThirdBodyMutualSphericalHarmonicsGravitational" ) +
+                                    std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ") +
+                                    std::string( "EnvironmentUpdaterSettings" ) );
+                    }
+                    break;
+                }
                 default:
+                    throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
+                                              boost::lexical_cast< std::string >( currentAccelerationModelType ) );
                     break;
                 }
 
@@ -295,10 +344,54 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
     return environmentModelsToUpdate;
 }
 
+//! Get list of required environment model update settings from mass rate models.
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+createMassPropagationEnvironmentUpdaterSettings(
+        const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
+        const simulation_setup::NamedBodyMap& bodyMap )
+{
+    using namespace basic_astrodynamics;
+    using namespace propagators;
+
+    std::map< propagators::EnvironmentModelsToUpdate,
+              std::vector< std::string > > environmentModelsToUpdate;
+    std::map< propagators::EnvironmentModelsToUpdate,
+              std::vector< std::string > > singleRateModelUpdateNeeds;
+
+    // Iterate over all bodies with mass rate model.
+    for( std::map< std::string, boost::shared_ptr< MassRateModel > >::const_iterator massRateModelIterator =
+         massRateModels.begin( ); massRateModelIterator != massRateModels.end( ); massRateModelIterator++ )
+    {
+        singleRateModelUpdateNeeds.clear( );
+
+        // Identify mass rate type and set required environment update settings.
+        AvailableMassRateModels currentAccelerationModelType =
+                getMassRateModelType( massRateModelIterator->second );
+        switch( currentAccelerationModelType )
+        {
+        case custom:
+            break;
+        default:
+            throw std::runtime_error( std::string( "Error when setting mass rate model update needs, model type not recognized: " ) +
+                                      boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+
+        }
+
+        // Check whether requested updates are possible.
+        checkValidityOfRequiredEnvironmentUpdates( singleRateModelUpdateNeeds, bodyMap );
+
+        // Add requested updates of current acceleration model to
+        // full list of environment updates.
+        addEnvironmentUpdates( environmentModelsToUpdate, singleRateModelUpdateNeeds );
+    }
+
+    return environmentModelsToUpdate;
+
+}
 
 //! Function to create 'brute-force' update settings, in which each environment model is updated.
 std::map< propagators::EnvironmentModelsToUpdate,
-          std::vector< std::string > > createFullEnvironmentUpdaterSettings(
+std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     using namespace basic_astrodynamics;

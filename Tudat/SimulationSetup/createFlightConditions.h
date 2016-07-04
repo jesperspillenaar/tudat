@@ -220,33 +220,6 @@ public:
 
     //! Constructor.
     /*!
-    *  Constructor, omitting all moment coefficient data.
-    *  \param constantForceCoefficient Constant force coefficients.
-    *  \param referenceArea Reference area with which aerodynamic forces and moments are
-    *  non-dimensionalized.
-    *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-    *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
-    *  frame (typically denoted as Cx, Cy, Cz).
-    *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
-    *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
-    *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
-    *  coefficients are typically defined in negative direction.
-    */
-    ConstantAerodynamicCoefficientSettings(
-            const double referenceArea,
-            const Eigen::Vector3d& constantForceCoefficient,
-            const bool areCoefficientsInAerodynamicFrame = 0,
-            const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        AerodynamicCoefficientSettings(
-            constant_aerodynamic_coefficients, TUDAT_NAN, referenceArea,
-            TUDAT_NAN, Eigen::Vector3d::Zero( ),
-            std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
-            areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
-        constantForceCoefficient_( constantForceCoefficient ),
-        constantMomentCoefficient_( Eigen::Vector3d::Zero( ) ){ }
-
-    //! Constructor.
-    /*!
      *  Constructor.
      *  \param constantForceCoefficient Constant force coefficients.
      *  \param constantMomentCoefficient Constant moment coefficients.
@@ -282,6 +255,34 @@ public:
         constantForceCoefficient_( constantForceCoefficient ),
         constantMomentCoefficient_( constantMomentCoefficient )
     { }
+
+   //! Constructor.
+    /*!
+    *  Constructor, omitting all moment coefficient data.
+    *  \param constantForceCoefficient Constant force coefficients.
+    *  \param referenceArea Reference area with which aerodynamic forces and moments are
+    *  non-dimensionalized.
+    *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+    *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+    *  frame (typically denoted as Cx, Cy, Cz).
+    *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+    *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
+    *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+    *  coefficients are typically defined in negative direction.
+    */
+    ConstantAerodynamicCoefficientSettings(
+            const double referenceArea,
+            const Eigen::Vector3d& constantForceCoefficient,
+            const bool areCoefficientsInAerodynamicFrame = 0,
+            const bool areCoefficientsInNegativeAxisDirection = 1 ):
+        AerodynamicCoefficientSettings(
+            constant_aerodynamic_coefficients, TUDAT_NAN, referenceArea,
+            TUDAT_NAN, Eigen::Vector3d::Zero( ),
+            std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
+            areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+        constantForceCoefficient_( constantForceCoefficient ),
+        constantMomentCoefficient_( Eigen::Vector3d::Zero( ) ){ }
+
 
     //! Function to return constant force coefficients.
     /*!
@@ -616,4 +617,5 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
 } // namespace simulation_setup
 
 } // namespace tudat
+
 #endif // TUDAT_CREATEACCELERATIONMODELS_H
