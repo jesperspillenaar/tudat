@@ -76,6 +76,7 @@ public:
     virtual boost::shared_ptr< T > extract(
         parsed_data_vector_utilities::ParsedDataLineMapPtr data ) = 0;
 
+
 protected:
 
     //! Short-hand notations.
