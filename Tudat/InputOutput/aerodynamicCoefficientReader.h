@@ -21,55 +21,6 @@ namespace tudat
 namespace input_output
 {
 
-template< int NumberOfDimensions >
-typename boost::multi_array< double ,NumberOfDimensions >::index getIndex(
-        const typename boost::multi_array< double, NumberOfDimensions >& m, const double* requestedElement,
-        const unsigned short int direction)
-{
-    int offset = requestedElement - m.origin( );
-    return( offset / m.strides( )[ direction] % m.shape( )[ direction ] +  m.index_bases( )[direction] );
-}
-
-inline boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 1 >& m, const double* requestedElement )
-{
-    typedef boost::multi_array< double, 1 > NMultiArray;
-    boost::array< NMultiArray::index, 1 >  currentIndices;
-    for ( unsigned int dir = 0; dir < 1; dir++ )
-    {
-        currentIndices[ dir ] = getIndex< 1 >( m, requestedElement, dir );
-    }
-
-    return currentIndices;
-}
-
-inline boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 2 >& m, const double* requestedElement )
-{
-    typedef boost::multi_array< double, 2 > NMultiArray;
-    boost::array< NMultiArray::index, 2 >  currentIndices;
-    for ( unsigned int dir = 0; dir < 2; dir++ )
-    {
-        currentIndices[ dir ] = getIndex< 2 >( m, requestedElement, dir );
-    }
-
-    return currentIndices;
-}
-
-inline boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 3 >& m, const double* requestedElement )
-{
-    typedef boost::multi_array< double, 3 > NMultiArray;
-    boost::array< NMultiArray::index, 3 >  currentIndices;
-    for ( unsigned int dir = 0; dir < 3; dir++ )
-    {
-        currentIndices[ dir ] = getIndex< 3 >( m, requestedElement, dir );
-    }
-
-    return currentIndices;
-}
-
-
 //! Function to merge three double multi-arrays of N dimension into a single Vector3d multi-array
 /*!
  *  Function to merge three double multi-arrays of N dimension into a single Vector3d multi-array, where the three
@@ -79,13 +30,13 @@ inline boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIn
  *  \param zComponents Multi-array containing the z-components of the Vector3d
  *  \return Single multi-array containing Vector3ds according to double multi-arrays.
  */
-template< int NumberOfDimensions >
-boost::multi_array< Eigen::Vector3d, NumberOfDimensions > mergeNDimensionalCoefficients(
-        boost::multi_array< double, NumberOfDimensions > xComponents,
-        boost::multi_array< double, NumberOfDimensions > yComponents,
-        boost::multi_array< double, NumberOfDimensions > zComponents )
+template< unsigned int NumberOfDimensions >
+boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > mergeNDimensionalCoefficients(
+        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > xComponents,
+        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > yComponents,
+        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > zComponents )
 {
-    boost::multi_array< Eigen::Vector3d, NumberOfDimensions > vectorArray;
+    boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > vectorArray;
 
     // Check input consistency
     for( unsigned int i = 0; i < NumberOfDimensions; i++ )
@@ -117,7 +68,7 @@ boost::multi_array< Eigen::Vector3d, NumberOfDimensions > mergeNDimensionalCoeff
     tIndexArray index;
     for( unsigned int i = 0; i < numberOfEntries; i++ )
     {
-        index = getMultiArrayIndexArray( xComponents, p );
+        index = utilities::getMultiArrayIndexArray( xComponents, p );
 
         vectorVector[ i ] = ( Eigen::Vector3d( )<<xComponents( index ), yComponents( index ), zComponents( index ) ).finished( );
         ++p;
@@ -150,8 +101,9 @@ bool compareIndependentVariables( const std::vector< std::vector< double > >& li
  *  \return  Pair: first entry containing multi-array of aerodynamic coefficients, second containing list of independent
  *  variables at which coefficients are defined.
  */
-template< int NumberOfDimensions >
-std::pair< boost::multi_array< Eigen::Vector3d, NumberOfDimensions >, std::vector< std::vector< double > > >
+template< unsigned int NumberOfDimensions >
+std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
+std::vector< std::vector< double > > >
 readAerodynamicCoefficients( const std::vector< std::string >& fileNames )
 {
     if( fileNames.size( ) != 3 )
@@ -168,20 +120,22 @@ readAerodynamicCoefficients( const std::vector< std::string >& fileNames )
     return readAerodynamicCoefficients< NumberOfDimensions >( fileNameMap );
 }
 
-template< int NumberOfDimensions >
-std::pair< boost::multi_array< Eigen::Vector3d, NumberOfDimensions >, std::vector< std::vector< double > > >
+template< unsigned int NumberOfDimensions >
+std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
+std::vector< std::vector< double > > >
 readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
 {
     // Read data from files.
-    std::map< int, boost::multi_array< double, NumberOfDimensions > > rawCoefficientArrays;
+    std::map< int, boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > > rawCoefficientArrays;
 
-    std::vector< boost::multi_array< double, NumberOfDimensions > > coefficientArrays;
+    std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > > coefficientArrays;
     std::vector< std::vector< double > > independentVariables;
 
     for( std::map< int, std::string >::const_iterator fileIterator = fileNames.begin( ); fileIterator != fileNames.end( );
          fileIterator++ )
     {
-        std::pair< boost::multi_array< double, NumberOfDimensions >, std::vector< std::vector< double > > > currentCoefficients =
+        std::pair< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) >,
+                std::vector< std::vector< double > > > currentCoefficients =
                 MultiArrayFileReader< NumberOfDimensions >::readMultiArrayAndIndependentVariables( fileIterator->second );
         if( rawCoefficientArrays.size( ) == 0 )
         {
@@ -210,7 +164,8 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
     else
     {
         coefficientArrays.resize( 3 );
-        boost::multi_array< double, NumberOfDimensions > firstMultiArray = rawCoefficientArrays.begin( )->second;
+        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > firstMultiArray =
+                rawCoefficientArrays.begin( )->second;
 
         for( unsigned int i = 0; i < 3; i++ )
         {
@@ -227,7 +182,8 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
 
                 coefficientArrays[ i ].resize( sizeVector );
 
-                std::fill( coefficientArrays[ i ].data( ), coefficientArrays[ i ].data() + coefficientArrays[ i ].num_elements( ), 0.0 );
+                std::fill( coefficientArrays[ i ].data( ),
+                           coefficientArrays[ i ].data() + coefficientArrays[ i ].num_elements( ), 0.0 );
             }
         }
     }

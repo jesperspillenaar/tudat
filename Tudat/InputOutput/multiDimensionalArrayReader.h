@@ -51,7 +51,7 @@ boost::multi_array< double, 3 > parseRawThreeDimensionalCoefficientsFromFile(
 /*!
  * Function to read a coefficient file (data on a structured grid as a function of N independent variables). This function
  * reads the file as raw data, converting teh data into a multi-array of the correct size can be done using the
- * MultiArrayFileReader class if needed. The file format is defined in AAAAAA.
+ * MultiArrayFileReader class if needed. The file format is defined in the Tudat wiki.
  * \param fileName
  * \param independentVariables
  * \param coefficientBlock
@@ -70,7 +70,7 @@ int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileNam
  *  NOTE: The possibility of using a single  templated implementation for arbitrary multi-array size should be investigated
  *  in the future.
  */
-template< int NumberOfDimensions >
+template< unsigned int NumberOfDimensions >
 class MultiArrayFileReader
 {
 public:
@@ -82,7 +82,7 @@ public:
      *  \param fileName Name of the coefficient file
      *  \return Multi-array containing file contents.
      */
-    static boost::multi_array< double, NumberOfDimensions > readMultiArray(
+    static boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > readMultiArray(
             const std::string fileName );
 
     //! Function to read a multi-array from the file, and the values of the independent variables at which it is defined
@@ -144,7 +144,8 @@ public:
         independentVariableSize.push_back( independentVariables.at( 0 ).size( ) );
 
         // Parse data from file
-        return std::make_pair( parseRawOneDimensionalCoefficientsFromFile( independentVariableSize, coefficientBlock ), independentVariables );
+        return std::make_pair( parseRawOneDimensionalCoefficientsFromFile(
+                                   independentVariableSize, coefficientBlock ), independentVariables );
     }
 };
 
@@ -196,7 +197,8 @@ public:
         independentVariableSize.push_back( independentVariables.at( 1 ).size( ) );
 
         // Parse data from file
-        return std::make_pair( parseRawTwoDimensionalCoefficientsFromFile( independentVariableSize, coefficientBlock ), independentVariables );
+        return std::make_pair( parseRawTwoDimensionalCoefficientsFromFile(
+                                   independentVariableSize, coefficientBlock ), independentVariables );
     }
 };
 
