@@ -11,6 +11,8 @@
 #ifndef TUDAT_THRUSTMAGNITUDEWRAPPER_H
 #define TUDAT_THRUSTMAGNITUDEWRAPPER_H
 
+#include <iostream>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -410,7 +412,7 @@ public:
             }
 
             // Compute thrust
-            currentThrustMagnitude_ = thrustMagnitudeFunction_( currentThrustInputVariables_ );
+            currentThrustMagnitude_ = thrustMagnitudeFunction_( currentThrustInputVariables_ );            
 
             // Retrieve specific impulse independent variables
             for( unsigned int i = 0; i < specificImpulseInputVariableFunctions_.size( ); i++ )
@@ -420,6 +422,9 @@ public:
 
             // Compute specific impulse
             currentSpecificImpulse_ = specificImpulseFunction_( currentSpecificImpulseInputVariables_ );
+            //std::cout << currentThrustMagnitude_ << "           ";
+            //std::cout << currentSpecificImpulse_ << "\n";
+
         }
     }
 

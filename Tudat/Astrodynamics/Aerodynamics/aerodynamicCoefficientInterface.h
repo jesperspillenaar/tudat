@@ -394,6 +394,10 @@ public:
         }
     }
 
+    std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > > getControlSurfaceIncrementInterfaces( )
+    {
+        return controlSurfaceIncrementInterfaces_;
+    }
 
 protected:
 

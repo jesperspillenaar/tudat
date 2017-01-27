@@ -16,7 +16,10 @@ namespace tudat
 namespace propulsion
 {
 
+
+
 //! Function to get the unit vector colinear with velocity segment of a translational state.
+//!
 Eigen::Vector3d getForceDirectionColinearWithVelocity(
         const boost::function< void( basic_mathematics::Vector6d& ) > currentStateFunction,
         const double currentTime, const bool putForceInOppositeDirection )
@@ -26,7 +29,10 @@ Eigen::Vector3d getForceDirectionColinearWithVelocity(
     return ( ( putForceInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 3, 3 ) ).normalized( );
 }
 
+
+
 //! Function to get the unit vector colinear with position segment of a translational state.
+//!
 Eigen::Vector3d getForceDirectionColinearWithPosition(
         const boost::function< void( basic_mathematics::Vector6d& ) > currentStateFunction,
         const double currentTime, const bool putForceInOppositeDirection )
@@ -36,7 +42,10 @@ Eigen::Vector3d getForceDirectionColinearWithPosition(
     return ( ( putForceInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 0, 3 ) ).normalized( );
 }
 
+
+
 //! Function to get the force direction from a time-only function.
+//!
 Eigen::Vector3d getForceDirectionFromTimeOnlyFunction(
         const double currentTime,
         const boost::function< Eigen::Vector3d( const double ) > timeOnlyFunction )

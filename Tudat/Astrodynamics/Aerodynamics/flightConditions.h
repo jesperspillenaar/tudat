@@ -306,10 +306,11 @@ public:
      *  Function to return list of independent variables of the aerodynamic coefficient interface
      *  \return List of independent variables of the aerodynamic coefficient interface
      */
-    std::vector< double > getAerodynamicCoefficientIndependentVariables( )
+    std::vector< double > getAerodynamicCoefficientIndependentVariables(
+            const bool forceUpdate = false )
     {
-        if( aerodynamicCoefficientIndependentVariables_.size( ) !=
-                aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ) )
+        if( ( aerodynamicCoefficientIndependentVariables_.size( ) !=
+                aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ) ) || forceUpdate )
         {
             updateAerodynamicCoefficientInput( );
         }

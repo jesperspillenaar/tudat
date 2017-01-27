@@ -225,7 +225,7 @@ boost::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
     // Create angle-of-attack function from trim object.
     boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
             boost::bind( &FlightConditions::getAerodynamicCoefficientIndependentVariables,
-                         flightConditions );
+                         flightConditions, true );
     boost::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariablesFunction =
             boost::bind( &FlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
                          flightConditions );
